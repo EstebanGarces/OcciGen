@@ -1,11 +1,24 @@
 # Automatic transcription of handwritten Old Occitan language
 
-# Old Occitan Dictionary
+We propose an innovative HTR approach that leverages the transformer architecture for recognizing handwritten Old Occitan, a low-resource language. We develop and rely on elaborate data augmentation techniques for both text and image data.
 
-- Annotation of ~ 41k data points
-- Training of a HTR model based on the transformer architecture
-- Multiple experiments to obtain the best model (CER 0.005, Swin + BERT)
-- Further experiments on an external data set
+Our model combines a custom-trained `Swin` image encoder with a `BERT` text decoder, which we pre-train using a large-scale augmented synthetic data set and fine-tune on the small human-labeled data set.
+
+Experimental results reveal that our approach surpasses the performance of current state-of-the-art models for Old Occitan HTR, including open-source transformer-based models such as a fine-tuned `TrOCR` and commercial applications like `Google Cloud Vision`.
+
+## Main steps
+
+- Annotation of ~ 41k data points (80% train / 10% validation / 10% test)
+- Pre-processing of images and text to enhance data augmentation:
+    - Synthetic image generation through an extended `EMNIST dataset`
+    - Synthetic corpus generation through merged Old Occitan corpora
+- Byte-level BPE Tokenization on a synthetic Old Occitan corpus
+- `VisionEncoderDecoder` model pre-training with synthetic images and fine-tuning with real (rotated and dilated) images
+- Model selection from 24 experimental setups covering four vision encoders (`BEiT`, `DeiT`, `ViT` and `Swin`) and two language decoders (`GPT-2` and `BERT`)
+- `Swin + BERT` is the best-performing model with a test performance of weighted CER 0.005 and 96.5% correctly predicted labels.
+- Benchmarking against external open-source and commercial tools: `EasyOCR`, `PaddleOCR`, `Tesseract OCR`, `Google Cloud Vision`, and a fine-tuned `TrOCR`
+  - Our approach achieves SOTA results in the Old Occitan data set
+- Further experiments on an external data set exhibit a good performance (after post-processing) of weighted CER 0.011, and 92.1% correctly predicted labels 
 
 Project Organization
 ------------
