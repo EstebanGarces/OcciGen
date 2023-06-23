@@ -6,14 +6,11 @@ import re
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# assume your data is stored in a pandas DataFrame called "df"
+# Assume your data is stored in a pandas DataFrame called "df"
 
-path_to_df = 'C:/Users/ru84fuj/Desktop/help_files/'
+path_to_df = '/path/to/error_analysis/'
 
-#df = pd.read_excel(path_to_df + 'test_results_0006.xlsx')
-df_raw = pd.read_excel(path_to_df + 'swin_bert_vallari.xlsx')
-df = df_raw[df_raw['Split'] == 'Test']
-
+df = pd.read_excel(path_to_df + 'test_set_results.xlsx')
 
 # 1. A list of characters that appear in the labels column
 unique_chars = set(''.join(df['Label'].tolist()))
