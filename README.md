@@ -28,15 +28,17 @@ Project Organization
     ├── requirements.txt   <- The requirements.txt file
     ├── .gitattributes     <- The extensions to be tracked with Git LFS.
     │
-    ├── augmentation       <- Includes the synthetic corpora and the extended emnist data set.
+    ├── augmentation       <- Includes the synthetic corpora and the extended EMNIST data set.
     │
-    ├── benchmarking       <- Includes benchmarking results with external OCR/HTR tools.
+    ├── benchmarking       <- Includes benchmarking results with external OCR/HTR tools as well as benchmarking on an external Old Occitan data set.
     │
-    ├── data               <- Includes the merged corpora file, labels and original and preprocessed images for the DOM project and an external Occitan data set.
+    ├── data               <- Includes the merged corpora file, labels, and original and preprocessed images for the DOM project and an external Occitan data set.
     │
-    ├── model              <- Includes best-performing model with its config.json file.
+    ├── error_analysis     <- Includes file with the test set performance of our final model. Used for visualizations and benchmarking.
+    │    
+    ├── model              <- Includes best-performing model (Swin + BERT) with its config.json file.
     │
-    ├── src                <- Contains the source code for training (model and tokenizer), inference, data preparation and benchmarking evaluation.
+    ├── src                <- Contains the source code for training (model and tokenizer), inference, data preparation, and benchmarking evaluation.
     │
     └── tokenizer          <- Includes the byte-level BPE tokenizer and the corpus it is trained on.
 
