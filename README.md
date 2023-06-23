@@ -25,7 +25,7 @@ Project Organization
 
     ├── LICENSE
     ├── README.md          <- This file.
-    ├── requirements.txt   <- The requirements.txt file including all dependencies.
+    ├── requirements.txt   <- The requirements.txt file
     ├── .gitattributes     <- The extensions to be tracked with Git LFS.
     │
     ├── augmentation       <- Includes the synthetic corpora and the extended emnist data set.
@@ -36,7 +36,7 @@ Project Organization
     │
     ├── model              <- Includes best-performing model with its config.json file.
     │
-    ├── src                <- Contains the source code for training (model and tokenizer), inference, and data preparation.
+    ├── src                <- Contains the source code for training (model and tokenizer), inference, data preparation and benchmarking evaluation.
     │
     └── tokenizer          <- Includes the byte-level BPE tokenizer and the corpus it is trained on.
 
@@ -55,18 +55,20 @@ from torchmetrics import CharErrorRate
 import pandas as pd
 import random
 
+# Specify your path
 output_dir = '/path/to/output/directory/'
 image_path = '/path/to/images/'
 label_path = '/path/to/labels/'
 tokenizer_path = '/path/to/tokenizer/'
 model_path = '/path/to/model/'
 
+# Load image names and labels
 image_dataframe = pd.read_excel(label_path + 'blue_cards_labels.xlsx')
 image_dataframe = image_dataframe[image_dataframe['split'] == 'test']
 image_names = image_dataframe['preproc_file_name'].tolist()
 image_labels = image_dataframe['label'].tolist()
 
-# Load model
+# Load tokenizer, model and feature extractor
 tokenizer = PreTrainedTokenizerFast(tokenizer_file=tokenizer_path + "byte-level-BPE.tokenizer.json")
 model = VisionEncoderDecoderModel.from_pretrained(model_path)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -81,6 +83,7 @@ labels_list = []
 predictions_list = []
 cer_list = []
 
+# Determine number of examples
 num_examples = len(image_raw_labels)
 
 # Run predictions and calculate CER
@@ -104,7 +107,7 @@ for i in range(num_examples):
     # Calculate CER
     cer = metric(preds=generated_text, target=label).item()
     # Round it
-    cer = np.round(cer, 2)
+    cer = np.round(cer, 5)
     # Add labels, predictions, and CER to lists
     labels_list.append(label)
     predictions_list.append(generated_text)
@@ -117,6 +120,7 @@ mean_cer = np.mean(cer_list)
 mean_cer = np.round(mean_cer, 5)
 print(f'\nMean CER over {len(cer_list)} test examples: {mean_cer}\n')
 
+# Summarize results and export
 output_df = pd.DataFrame({'Label': labels_list, 'Prediction': predictions_list, 'CER': cer_list})
 output_df.to_excel(output_dir + 'inference_results.xlsx', index=False)
 
