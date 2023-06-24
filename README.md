@@ -28,7 +28,7 @@ Project Organization
     ├── requirements.txt   <- The requirements.txt file
     ├── .gitattributes     <- The extensions to be tracked with Git LFS.
     │
-    ├── augmentation       <- Includes the synthetic corpora and the extended EMNIST data set.
+    ├── augmentation       <- Includes the synthetic corpus and the extended EMNIST data set.
     │
     ├── benchmarking       <- Includes benchmarking results with external OCR/HTR tools as well as benchmarking on an external Old Occitan data set.
     │
@@ -37,6 +37,8 @@ Project Organization
     ├── error_analysis     <- Includes file with the test set performance of our final model. Used for visualizations and benchmarking.
     │    
     ├── model              <- Includes best-performing model (Swin + BERT) with its config.json file.
+    │
+    ├── model_comparison   <- Includes inference results on validation test set for 24 combinations of vision encoders and language decoders
     │
     ├── src                <- Contains the source code for training (model and tokenizer), inference, data preparation, and benchmarking evaluation.
     │
