@@ -40,7 +40,7 @@ Project Organization
     │
     ├── model_comparison   <- Includes inference results on validation test set for 24 combinations of vision encoders and language decoders
     │
-    ├── src                <- Contains the source code for training (model and tokenizer), inference, data preparation, and benchmarking evaluation.
+    ├── src                <- Contains the source code for training (model and tokenizer), inference, data preparation (images and text), and benchmarking evaluation.
     │
     └── tokenizer          <- Includes the byte-level BPE tokenizer and the corpus it is trained on.
 
