@@ -1,14 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Sat Apr  8 23:30:36 2023
-
-@author: ru84fuj
-"""
 
 import re
 import pandas as pd
 import random
 
+# Creat function that take standard corpus words and convert them in the format "GRAPHICAL VARIANT -> LEMMA"
 def get_word_pairs(filename, eos_token, seed):
     with open(filename, 'r', encoding='utf-8') as file:
         text = file.read()
@@ -23,15 +19,18 @@ def get_word_pairs(filename, eos_token, seed):
             pairs.append(words_shuffled[i] + '@' + words_shuffled[j] + eos_token)
     return pairs
 
-file_location = 'C:/Users/ru84fuj/Desktop/ocr-project/Corpora/merged.txt'
-custom_token = '<|endoftext|>'
+# Specify file location
+file_location = '/path/to/original_merged_corpora.txt'
+custom_token = '[SEP]'
 custom_token = ''
 output_pairs = get_word_pairs(file_location, custom_token, 42)
 train_pairs = output_pairs[:int(len(output_pairs)*0.8)]
 test_pairs = output_pairs[int(len(output_pairs)*0.8):]
 
 # Add pairs from training
-add_pairs = pd.read_excel('C:/Users/ru84fuj/Desktop/help_files/train_pairs_40000.xlsx')['Pairs']
+labels_df = pd.read_excel('/path/to/blue_cards_labels.xlsx')
+labels_df = labels_df[labels_df['split'] == 'train']
+add_pairs = labels_df["label"] 
 add_pairs = list(add_pairs)
 add_pairs = set(add_pairs)
 add_pairs = list(add_pairs)
@@ -63,14 +62,7 @@ def build_text_files(data_list, dest_path):
     f = open(dest_path, 'w')
     f.write(data_list)
 
-swin_size = 34
-bert_size = 45
-
-start_size = f'Swin size: {swin_size}M parameters, BERT size: {bert_size}M parameters'
-
-build_text_files(start_size, 'C:/Users/ru84fuj/Desktop/help_files/model_size.txt')
-
 # Apply function and fill text files    
-build_text_files(output_train_text, 'C:/Users/ru84fuj/Desktop/help_files/train_gpt2.txt')
-build_text_files(output_test_text, 'C:/Users/ru84fuj/Desktop/help_files/test_gpt2.txt')
+build_text_files(output_train_text, '/path/to/synthetic_corpus.txt')
+build_text_files(output_test_text, '/path/to/test_corpus.txt') # Optional
 
