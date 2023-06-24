@@ -49,7 +49,7 @@ Project Organization
 --------
 
 
-# Example: Swin + BERT inference and CER calculation in `python`:
+# Example: Swin + BERT inference and CER calculation in `python`
 ```
 import os
 import torch
