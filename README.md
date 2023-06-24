@@ -161,7 +161,6 @@ output_df = pd.DataFrame({'Label': labels_list, 'Prediction': predictions_list, 
 output_df.to_excel(output_dir + 'inference_results.xlsx')
 
 
-
 ```
 
 
