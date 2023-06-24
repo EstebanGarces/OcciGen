@@ -84,14 +84,12 @@ model.to(device)
 # Define metric
 metric = CharErrorRate()
 
-# Make predictions
-
 # Empty predictions list
 labels_list = []
 predictions_list = []
 cer_list = []
 
-
+# Define handling of data samples
 class CustomDataset(Dataset):
     def __init__(self, image_names, image_path, feature_extractor, transform=None):
         self.image_names = image_names
@@ -119,6 +117,7 @@ class CustomDataset(Dataset):
 
 dataset = CustomDataset(image_names, image_path, feature_extractor, transform=None)
 
+# Inference and CER calculation
 for i in range(len(image_labels)):
     pixel_values = dataset[i].to(device)  # Move the image tensor to the device
     try:
