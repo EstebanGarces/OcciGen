@@ -47,84 +47,120 @@ Project Organization
 --------
 
 
-# Inference example in `python`:
+# Example: Swin + BERT inference and CER calculation in `python`:
 ```
+import os
 import torch
-import numpy as np
-from PIL import Image
+from torch.utils.data import Dataset
 from transformers import VisionEncoderDecoderModel, PreTrainedTokenizerFast, AutoFeatureExtractor
-from torchmetrics import CharErrorRate
+from PIL import Image
 import pandas as pd
-import random
+from torchmetrics import CharErrorRate
+import numpy as np
 
-# Specify your path
-output_dir = '/path/to/output/directory/'
-image_path = '/path/to/images/'
-label_path = '/path/to/labels/'
-tokenizer_path = '/path/to/tokenizer/'
-model_path = '/path/to/model/'
 
-# Load image names and labels
-image_dataframe = pd.read_excel(label_path + 'blue_cards_labels.xlsx')
-image_dataframe = image_dataframe[image_dataframe['split'] == 'test']
-image_names = image_dataframe['preproc_file_name'].tolist()
-image_labels = image_dataframe['label'].tolist()
+# Specify the path to the OcciGen repository
+repository_path = '/path/to/OcciGen/'
 
-# Load tokenizer, model and feature extractor
+# Construct the paths relative to the repository
+tokenizer_path = os.path.join(repository_path, 'tokenizer/')
+model_path = os.path.join(repository_path, 'model/')
+image_path = os.path.join(repository_path, 'data/dom_project/test_preprocessed/')
+label_path = os.path.join(repository_path, 'data/dom_project/blue_cards_labels.xlsx')
+
+image_dataframe = pd.read_excel(label_path)
+image_dataframe = image_dataframe[image_dataframe["split"] == "test"]
+image_names = list(image_dataframe['preproc_file_name'])
+image_labels = list(image_dataframe['label'])
+
+# Load model
 tokenizer = PreTrainedTokenizerFast(tokenizer_file=tokenizer_path + "byte-level-BPE.tokenizer.json")
+feature_extractor = AutoFeatureExtractor.from_pretrained("microsoft/swin-base-patch4-window7-224-in22k")
 model = VisionEncoderDecoderModel.from_pretrained(model_path)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(device)
 model.to(device)
-feature_extractor = AutoFeatureExtractor.from_pretrained("microsoft/swin-base-patch4-window7-224-in22k")
 
 # Define metric
 metric = CharErrorRate()
 
-# Initialize lists
+# Make predictions
+
+# Empty predictions list
 labels_list = []
 predictions_list = []
 cer_list = []
 
-# Determine number of examples
-num_examples = len(image_raw_labels)
 
-# Run predictions and calculate CER
-for i in range(num_examples):
-    # Load image
-    image = Image.open(image_path + 'test_preprocessed/' + image_names[i]).convert("RGB")
-    # Load label
-    label = image_labels[i]
-    # Generate pixel values
-    pixel_values = feature_extractor(image, return_tensors="pt").pixel_values.to(device)
-    # Generate ids predictions
-    generated_ids = model.generate(
-        pixel_values,
-        no_repeat_ngram_size = 100,
-        num_beams = 1,
-        max_length = 200,
-        num_return_sequences = 1
-    )
-    # Decode predictions
-    generated_text = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
-    # Calculate CER
-    cer = metric(preds=generated_text, target=label).item()
-    # Round it
-    cer = np.round(cer, 5)
-    # Add labels, predictions, and CER to lists
-    labels_list.append(label)
-    predictions_list.append(generated_text)
-    cer_list.append(cer)
-    print(
-        f'Test example number {i + 1}:\nLabel: {label}\nPrediction: {generated_text}\nCER: {cer}\nCurrent mean CER: {np.mean(cer_list)}\n'
-    )
+class CustomDataset(Dataset):
+    def __init__(self, image_names, image_path, feature_extractor, transform=None):
+        self.image_names = image_names
+        self.image_path = image_path
+        self.feature_extractor = feature_extractor
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.image_names)
+
+    def __getitem__(self, idx):
+        image_name = self.image_names[idx]
+        image = Image.open(self.image_path + image_name)
+        
+        # Convert image to RGB mode
+        if image.mode != 'RGB':
+            image = image.convert('RGB')
+
+        if self.transform:
+            image = self.transform(image)
+
+        pixel_values = self.feature_extractor(images=image, return_tensors="pt").pixel_values.to(device)
+        return pixel_values
+    
+
+dataset = CustomDataset(image_names, image_path, feature_extractor, transform=None)
+
+for i in range(len(image_labels)):
+    pixel_values = dataset[i].to(device)  # Move the image tensor to the device
+    try:
+        # Generate ids predictions
+        generated_ids = model.generate(
+            pixel_values,
+            no_repeat_ngram_size=100,
+            max_length=200,
+            num_beams=1,
+            num_return_sequences=1
+        )
+
+        # Decode predictions
+        generated_text = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)
+
+        # Calculate CER for each prediction in the batch
+        label = image_labels[i]
+        generated_text_i = generated_text[0]  # Since num_return_sequences=1, take the first generated sequence
+        cer = metric(preds=generated_text_i, target=label).item()
+        cer = np.round(cer, 5)
+
+        labels_list.append(label)
+        predictions_list.append(generated_text_i)
+        cer_list.append(cer)
+
+        print(f'Test example number {len(cer_list)}:\nLabel: {label}\nPrediction: {generated_text_i}\nCER: {cer}\nCurrent mean CER: {np.mean(cer_list)}\n')
+
+    except TypeError as e:
+        typekey = (pixel_values.shape, pixel_values.dtype)
+        raise TypeError(f"Cannot handle this data type: {str(typekey[0])}, {str(typekey[1])}") from e
 
 mean_cer = np.mean(cer_list)
 mean_cer = np.round(mean_cer, 5)
 print(f'\nMean CER over {len(cer_list)} test examples: {mean_cer}\n')
 
-# Summarize results and export
+# Specify output directory
+output_dir = '/your/output/directory/'
+
+# Summarize and export inference results
 output_df = pd.DataFrame({'Label': labels_list, 'Prediction': predictions_list, 'CER': cer_list})
-output_df.to_excel(output_dir + 'inference_results.xlsx', index=False)
+output_df.to_excel(output_dir + 'inference_results.xlsx')
+
 
 
 ```
