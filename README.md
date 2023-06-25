@@ -32,7 +32,7 @@ Project Organization
     │
     ├── benchmarking       <- Includes benchmarking results with external OCR/HTR tools as well as benchmarking on an external Old Occitan data set.
     │
-    ├── data               <- Includes the merged corpora file, labels, and original and preprocessed images for the DOM project and an external Occitan data set.
+    ├── data               <- Includes "Pansier corpus" and merged corpora file, labels, and original and preprocessed images for the DOM project and a different Occitan data set.
     │
     ├── error_analysis     <- Includes file with the test set performance of our final model. Used for visualizations and benchmarking.
     │    
