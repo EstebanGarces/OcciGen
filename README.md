@@ -1,8 +1,8 @@
 # Automatic transcription of handwritten Old Occitan language
 
-We propose an innovative HTR approach that leverages the transformer architecture for recognizing handwritten Old Occitan, a low-resource language. We develop and rely on elaborate data augmentation techniques for both text and image data.
+We propose an innovative HTR approach that leverages the transformer architecture for the recognition of handwritten Old Occitan, a low-resource language. We develop and rely on elaborate data augmentation techniques for both text and image data.
 
-Our model combines a custom-trained `Swin` image encoder with a `BERT` text decoder, which we pre-train using a large-scale augmented synthetic data set and fine-tune on the small human-labeled data set.
+Our model combines a custom-trained `Swin` image encoder with a `BERT`-based text decoder, which we pre-train using a large-scale augmented synthetic data set and fine-tune on the small human-labeled data set.
 
 Experimental results reveal that our approach surpasses the performance of current state-of-the-art models for Old Occitan HTR, including open-source transformer-based models such as a fine-tuned `TrOCR` and commercial applications like `Google Cloud Vision`.
 
@@ -17,8 +17,8 @@ Experimental results reveal that our approach surpasses the performance of curre
 - Model selection from 24 experimental setups covering four vision encoders (`BEiT`, `DeiT`, `ViT` and `Swin`) and two language decoders (`GPT-2` and `BERT`)
 - `Swin + BERT` is the best-performing model with a test performance of weighted CER 0.005 and 96.5% correctly predicted labels.
 - Benchmarking against external open-source and commercial tools: `EasyOCR`, `PaddleOCR`, `Tesseract OCR`, `Google Cloud Vision`, and a fine-tuned `TrOCR`
-  - Our approach achieves SOTA results in the Old Occitan data set
-- Further experiments on an external data set exhibit a good performance (after post-processing) of weighted CER 0.011, and 92.1% correctly predicted labels 
+    - Our approach achieves SOTA results in the Old Occitan data set
+- Further experiments on an external data set exhibit a good performance (after automatic post-processing) of weighted CER 0.011, and 92.1% correctly predicted labels 
 
 Project Organization
 ------------
@@ -38,7 +38,7 @@ Project Organization
     │    
     ├── model              <- Includes best-performing model (Swin + BERT) with its config.json file.
     │
-    ├── model_comparison   <- Includes inference results on validation test set for 24 combinations of vision encoders and language decoders
+    ├── model_comparison   <- Includes inference results on validation set for 4 x 2 x 3 = 24 combinations of vision encoders, language decoders, and training setups.
     │
     ├── src                <- Contains the source code for training (model and tokenizer), inference, data preparation (images and text), and benchmarking evaluation.
     │
